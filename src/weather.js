@@ -20,34 +20,36 @@ import { LocalStorage } from "./local-storage";
 
 // Load weather in local stroge on page load
 window.addEventListener('load', () => {
-    displayWeather(LocalStorage.get('API-response'));
+    if(LocalStorage.retrieve('API-response') == null){
+        displayWeather('New York');
+    } else {
+        displayWeather(LocalStorage.retrieve('API-response'));
+    }
 });
 
+// Retrieve DOM elements
 const getDom = (() => {
     let searchbar = document.querySelector('.searchbar form');
-    let country = document.querySelector('#country');
-    let city = document.querySelector('#city');
+    let location = document.querySelector('#location');
     let feelLike = document.querySelector('#feel-like-temperature');
     let temp = document.querySelector('#temperature');
     let humidity = document.querySelector('#humidity');
 
     return {
         searchbar,
-        country,
-        city,
+        location,
         feelLike,
         temp,
         humidity
     }
 })();
 
-// Assign weather data to variables
+// Update DOM values
 const displayWeather = (weather) => {
-    getDom.country.textContent = 'Country= '+weather.sys.country;
-    getDom.city.textContent = 'City= '+weather.name;
-    getDom.feelLike.textContent = 'Feel like= '+weather.main.feels_like+'%';
-    getDom.temp.textContent = 'Temp= '+weather.main.temp+' F';
-    getDom.humidity.textContent = 'Humidity= '+weather.main.humidity+' F';
+    getDom.location.textContent = `${weather.name}, ${weather.sys.country}`;
+    getDom.feelLike.textContent = weather.main.feels_like;
+    getDom.temp.textContent = weather.main.temp;
+    getDom.humidity.textContent = weather.main.humidity;
 }
 
 // Get weather data from API
@@ -59,24 +61,19 @@ const getWeather = async (city) => {
         let tempUrl = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
         let tempResponse = await fetch(tempUrl, {mode: 'cors'});
         tempResponse = await tempResponse.json();
+
+        // Search API based on previous city's lat & lon values
         let lat = tempResponse.city.coord.lat;
         let lon = tempResponse.city.coord.lon;
 
-    } catch (error) {
-        console.log(error);
-        alert('Invalid location! Please try again.');
-        return;
-    }
-
-    try{
-        // Search API based on previous city's lat & lon values
         let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
         let response = await fetch(url, {mode: 'cors'});
         response = await response.json();
-        console.log(response);
+        
+        //console.log(response);
 
         // Update internal storage
-        LocalStorage.update('API-response', response);
+        LocalStorage.update('API-response');
 
         // Display new weather data
         displayWeather(response);
@@ -87,9 +84,8 @@ const getWeather = async (city) => {
         return;
     }
 }
-// Temp test call
-getWeather('New York');
 
+// Searchbar
 getDom.searchbar.addEventListener('submit', (e) => {
     e.preventDefault();
     let search = getDom.searchbar.elements[0].value;

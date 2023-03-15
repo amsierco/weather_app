@@ -1,15 +1,13 @@
 export const LocalStorage = (() => {
 
     function update(id, data) {
-        if(data === null || data === undefined || data === '' || id === ''){return;}
         localStorage.setItem(`${id}`, JSON.stringify(data));
     }
 
-    function get(id) {
-        if(id === null || id === undefined || id === ''){return;}
+    function retrieve(id) {
         return(JSON.parse(localStorage.getItem(`${id}`)));
     }
 
-    return {update, get};
+    return {update, retrieve};
 
 })();
