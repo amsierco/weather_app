@@ -24,6 +24,7 @@ window.addEventListener('load', () => {
 });
 
 const getDom = (() => {
+    let searchbar = document.querySelector('.searchbar form');
     let country = document.querySelector('#country');
     let city = document.querySelector('#city');
     let feelLike = document.querySelector('#feel-like-temperature');
@@ -31,6 +32,7 @@ const getDom = (() => {
     let humidity = document.querySelector('#humidity');
 
     return {
+        searchbar,
         country,
         city,
         feelLike,
@@ -60,6 +62,13 @@ const getWeather = async (city) => {
         let lat = tempResponse.city.coord.lat;
         let lon = tempResponse.city.coord.lon;
 
+    } catch (error) {
+        console.log(error);
+        alert('Invalid location! Please try again.');
+        return;
+    }
+
+    try{
         // Search API based on previous city's lat & lon values
         let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
         let response = await fetch(url, {mode: 'cors'});
@@ -74,7 +83,17 @@ const getWeather = async (city) => {
 
     } catch (error) {
         console.log(error);
+        alert('Invalid coordinates! Please try again.');
+        return;
     }
 }
 // Temp test call
 getWeather('New York');
+
+getDom.searchbar.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let search = getDom.searchbar.elements[0].value;
+    console.log('Searching for: '+search);
+    getWeather(search);
+    getDom.searchbar.reset();
+})

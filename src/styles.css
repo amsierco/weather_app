@@ -1,7 +1,10 @@
-/* body {
-    background-color: black;
-    color: whitesmoke;
-} */
+body {
+  background: url('./background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+  font-size: 2rem;
+}
 
 /************************************Searchbar*/
 
