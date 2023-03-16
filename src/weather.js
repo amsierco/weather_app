@@ -1,86 +1,106 @@
 import { LocalStorage } from "./local-storage";
 
-/*  Planning Doc
-    
-    *Internal storage of last loaded location
-        Type = Module
-        -Local storage save/load functions
-        -Use local storage to update the temp units
-
-    *Weather API access
-        Type = Module
-        -Fetch / Promises / Error handling
-
-    *Events
-        -Change locations
-        -Scroll through forecast data
-        -Switch temperature type
-
-*/
-
 // Load weather in local stroge on page load
 window.addEventListener('load', () => {
-    if(LocalStorage.retrieve('API-response') == null){
-        displayWeather('New York');
+    // Default weather
+    if(LocalStorage.retrieve('city') == undefined){
+        getWeather('New York', 'imperial');
     } else {
-        displayWeather(LocalStorage.retrieve('API-response'));
+        getWeather(LocalStorage.retrieve('city'), LocalStorage.retrieve('unit'));
     }
 });
 
 // Retrieve DOM elements
 const getDom = (() => {
     let searchbar = document.querySelector('.searchbar form');
+    let unitButton = document.querySelector('#units');
     let location = document.querySelector('#location');
     let feelLike = document.querySelector('#feel-like-temperature');
     let temp = document.querySelector('#temperature');
     let humidity = document.querySelector('#humidity');
+    let wind = document.querySelector('#wind');
+    let forecast = document.querySelector('.forecast > ul');
 
     return {
         searchbar,
+        unitButton,
         location,
         feelLike,
         temp,
-        humidity
+        humidity,
+        wind,
+        forecast
     }
 })();
 
-// Update DOM values
-const displayWeather = (weather) => {
+// Update DOM values with local weather data
+const displayLocalWeather = (weather, unit) => {
+    let windUnit = 'mph'
+    if(unit == 'imperial'){unit='F';}
+    else if(unit == 'metric'){unit='C'; windUnit='kmph';}
+
     getDom.location.textContent = `${weather.name}, ${weather.sys.country}`;
-    getDom.feelLike.textContent = weather.main.feels_like;
-    getDom.temp.textContent = weather.main.temp;
-    getDom.humidity.textContent = weather.main.humidity;
+    getDom.feelLike.textContent = `Feels like ${weather.main.feels_like} ${'\u00B0'}${unit}`;
+    getDom.temp.textContent = `Temp ${weather.main.temp} ${'\u00B0'}${unit}`;
+    getDom.humidity.textContent = `Humidity ${weather.main.humidity}%`;
+    getDom.wind.textContent = `Wind ${weather.wind.speed} ${windUnit}`;
+}
+
+// Update DOM values with forecast weather data
+const displayForecast = (forecast, unit, numDays=14) => {
+    let windUnit = 'mph'
+    if(unit == 'imperial'){unit='F';}
+    else if(unit == 'metric'){unit='C'; windUnit='kmph';}
+    
+    for(let i=0; i<numDays; i++){
+        let card = document.createElement('div');
+        card.setAttribute('id', `${i}`);
+        /*
+            clouds
+            feel temp
+            actual temp
+            humidity
+            wind
+            weather
+                description
+                icon
+        */
+    }
 }
 
 // Get weather data from API
 // https://openweathermap.org/current#one [OpenWeather API Guide]
-const getWeather = async (city) => {
+const getWeather = async (city, unit='imperial') => {
     try{
         // Search API based on city to get lat & lon
         if(city == '' || city === null || city === undefined){return;}
-        let tempUrl = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
-        let tempResponse = await fetch(tempUrl, {mode: 'cors'});
-        tempResponse = await tempResponse.json();
+        let urlOne = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
+        let forecastResponse = await fetch(urlOne, {mode: 'cors'});
+        forecastResponse = await forecastResponse.json();
 
-        // Search API based on previous city's lat & lon values
-        let lat = tempResponse.city.coord.lat;
-        let lon = tempResponse.city.coord.lon;
-
-        let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
-        let response = await fetch(url, {mode: 'cors'});
-        response = await response.json();
-        
-        //console.log(response);
+        console.log(forecastResponse);
 
         // Update internal storage
-        LocalStorage.update('API-response');
+        LocalStorage.update('city', city);
+        LocalStorage.update('unit', unit);
+        
+        // Search API based on previous city's lat & lon values
+        let lat = forecastResponse.city.coord.lat;
+        let lon = forecastResponse.city.coord.lon;
+
+        let urlTwo = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
+        let localResponse = await fetch(urlTwo, {mode: 'cors'});
+        localResponse = await localResponse.json();
+
+        //console.log(localResponse);
 
         // Display new weather data
-        displayWeather(response);
+        displayLocalWeather(localResponse, unit);
+        displayForecast(forecastResponse, unit);
 
     } catch (error) {
         console.log(error);
-        alert('Invalid coordinates! Please try again.');
+        alert('Invalid location! Please try again.');
         return;
     }
 }
@@ -92,4 +112,13 @@ getDom.searchbar.addEventListener('submit', (e) => {
     console.log('Searching for: '+search);
     getWeather(search);
     getDom.searchbar.reset();
+})
+
+// Unit change
+getDom.unitButton.addEventListener('click', () => {
+    if(LocalStorage.retrieve('unit') == 'imperial'){
+        getWeather(LocalStorage.retrieve('city'), 'metric');
+        return;
+    }
+    getWeather(LocalStorage.retrieve('city'), 'imperial');
 })
