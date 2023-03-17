@@ -74,7 +74,7 @@ const displayForecast = (forecast, unit, numDays=40) => {
         wind.textContent = `Wind ${currentDay.wind.speed} ${windUnit}`;
         weatherText.textContent = currentDay.weather[0].description;
 
-        let icon = 'http://openweathermap.org/img/w/'
+        let icon = 'https://openweathermap.org/img/w/'
             + currentDay.weather[0].icon + '.png';
         weatherIcon.setAttribute('src', icon);
 
@@ -97,7 +97,7 @@ const getWeather = async (city, unit='imperial') => {
     try{
         // Search API based on city to get lat & lon
         if(city == '' || city === null || city === undefined){return;}
-        let urlOne = `http://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
+        let urlOne = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
         let forecastResponse = await fetch(urlOne, {mode: 'cors'});
         forecastResponse = await forecastResponse.json();
 
