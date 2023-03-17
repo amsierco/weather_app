@@ -97,7 +97,7 @@ const getWeather = async (city, unit='imperial') => {
     try{
         // Search API based on city to get lat & lon
         if(city == '' || city === null || city === undefined){return;}
-        let urlOne = `https://api.openweathermap.org/data/2.5/onecall?q=${city}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
+        let urlOne = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`; 
         let forecastResponse = await fetch(urlOne, {mode: 'cors'});
         forecastResponse = await forecastResponse.json();
 
@@ -111,7 +111,7 @@ const getWeather = async (city, unit='imperial') => {
         let lat = forecastResponse.city.coord.lat;
         let lon = forecastResponse.city.coord.lon;
 
-        let urlTwo = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
+        let urlTwo = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
         let localResponse = await fetch(urlTwo, {mode: 'cors'});
         localResponse = await localResponse.json();
 
