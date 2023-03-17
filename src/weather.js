@@ -111,7 +111,7 @@ const getWeather = async (city, unit='imperial') => {
         let lat = forecastResponse.city.coord.lat;
         let lon = forecastResponse.city.coord.lon;
 
-        let urlTwo = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
+        let urlTwo = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=${unit}&appid=c631b49ca981e5cf9bdf698a0dcdb0fa`;
         let localResponse = await fetch(urlTwo, {mode: 'cors'});
         localResponse = await localResponse.json();
 
