@@ -1,5 +1,8 @@
 import { LocalStorage } from "./local-storage";
 
+/*Add date formating*/
+/*Forecast is not days, it includes hours in the days*/
+
 // Load weather in local stroge on page load
 window.addEventListener('load', () => {
     // Default weather
@@ -39,7 +42,7 @@ const displayLocalWeather = (weather, unit) => {
     if(unit == 'imperial'){unit='F';}
     else if(unit == 'metric'){unit='C'; windUnit='kmph';}
 
-    getDom.location.textContent = `${weather.name}, ${weather.sys.country}`;
+    getDom.location.textContent = `${weather.name}`;//, ${weather.sys.country}`;
     getDom.feelLike.textContent = `Feels like ${weather.main.feels_like} ${'\u00B0'}${unit}`;
     getDom.temp.textContent = `Temp ${weather.main.temp} ${'\u00B0'}${unit}`;
     getDom.humidity.textContent = `Humidity ${weather.main.humidity}%`;
@@ -47,24 +50,44 @@ const displayLocalWeather = (weather, unit) => {
 }
 
 // Update DOM values with forecast weather data
-const displayForecast = (forecast, unit, numDays=14) => {
-    let windUnit = 'mph'
+const displayForecast = (forecast, unit, numDays=40) => {
+    let windUnit = 'mph';
     if(unit == 'imperial'){unit='F';}
     else if(unit == 'metric'){unit='C'; windUnit='kmph';}
     
     for(let i=0; i<numDays; i++){
-        let card = document.createElement('div');
+        let currentDay = forecast.list[i];
+        let card = document.createElement('li');
         card.setAttribute('id', `${i}`);
-        /*
-            clouds
-            feel temp
-            actual temp
-            humidity
+
+        let weather = document.createElement('div');
+        let weatherText = document.createElement('div');
+        let weatherIcon = document.createElement('img');
+        let feelTemp = document.createElement('div');
+        let temp = document.createElement('div');
+        let humidity = document.createElement('div');
+        let wind = document.createElement('div');
+
+        feelTemp.textContent = `Feels like ${currentDay.main.feels_like} ${'\u00B0'}${unit}`;
+        temp.textContent = `Temp ${currentDay.main.temp} ${'\u00B0'}${unit}`;
+        humidity.textContent = `Humidity ${currentDay.main.humidity}%`;
+        wind.textContent = `Wind ${currentDay.wind.speed} ${windUnit}`;
+        weatherText.textContent = currentDay.weather[0].description;
+
+        let icon = 'http://openweathermap.org/img/w/'
+            + currentDay.weather[0].icon + '.png';
+        weatherIcon.setAttribute('src', icon);
+
+        weather.append(weatherIcon, weatherText);
+        card.append(
+            weather,
+            temp,
+            feelTemp,
+            humidity,
             wind
-            weather
-                description
-                icon
-        */
+        );
+        getDom.forecast.appendChild(card);
+
     }
 }
 
@@ -96,6 +119,7 @@ const getWeather = async (city, unit='imperial') => {
 
         // Display new weather data
         displayLocalWeather(localResponse, unit);
+        getDom.forecast.replaceChildren();
         displayForecast(forecastResponse, unit);
 
     } catch (error) {

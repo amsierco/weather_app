@@ -71,7 +71,7 @@ svg {
 .header {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(25%,1.4fr) 2fr 1fr;
+  grid-template-columns: 1.4fr 2fr 1fr;
   gap: 5%;
   align-items: center;
   margin-bottom: 20px;
@@ -92,4 +92,35 @@ svg {
   font-weight: 800;
   font-size: 3rem;
   text-align: center;
+}
+
+/************************************Forecast*/
+.forecast > ul {
+  display: flex;
+  padding: .8rem;
+  border: 3px solid white;
+  overflow: auto;
+  border-radius: 10px;
+  padding: 1rem;
+  gap: 5px;
+  font-size: 1.4rem;
+  align-items: center;
+}
+
+.forecast ul li {
+  display: block;
+  min-width: 200px;
+  max-width: 15%;
+}
+
+.forecast ul li > div {
+  margin-bottom: 12px;
+}
+
+.forecast ul li > div > img {
+  display: block;
+  object-fit: cover;
+  min-width: 70px;
+  aspect-ratio: 1/1;
+  padding: 0px;
 }
